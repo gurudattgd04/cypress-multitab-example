@@ -22,7 +22,7 @@ npm install
 
 @cypress/puppeteer plugin has all the tooling required to integrate the Puppeteer with Cypress.
 
-With this plugin we can now use a new command `cy.puppeteer()` which will execute the puppeteer code in the browser, the puppeteer code we will be using has to be used in the cypress.config.js file
+With this plugin we can now use a new command `cy.puppeteer()` which will execute the puppeteer code in the browser and the puppeteer code will be written in cypress.config.js{ts} file
 
 If you want to use the plugin in existing repo, please install the below @cypress/puppeteer as dev dependency
 
