@@ -278,7 +278,7 @@ async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
 ```
 Observe that `switchToNewTabAndRegisterUser` takes the parameter `browser` and this parameter input will be injected by our Cypress when this message handler is called in the code.
 
-Now the coming to Puppeeteer code, below will be the way our code is created
+Now coming to Puppeeteer code, below will be the way our code is created
 1. Create page reference
 ```
 const page = await retry<Promise<Page>>(async () => {
