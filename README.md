@@ -1,70 +1,318 @@
-# Getting Started with Create React App
+### Elevate Your Web Testing Game: Multi-Tab Testing with Cypress and Puppeteer Plugin
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Cypress, renowned for its user-friendly approach to end-to-end testing, meets its match in the Puppeteer plugin, breaking the mold by enabling multi-tab test scenarios. This combination not only broadens your testing capabilities but also aligns with real-world user interactions, offering insights into the robustness of your web applications under varied conditions
 
-## Available Scripts
 
-In the project directory, you can run:
+## Prerequisites
 
-### `npm start`
+@cypress/puppeteer plugin requires Cypress version 13.6.0 or greater.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Only Chromium-based browsers (e.g. Chrome, Chromium, Electron) are supported.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+To begin with 
+1. Clone this repo
+2. From the root of the repo, run below command to install the dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+npm install
+```
+### How Cypress is supporting Multitab ?
 
-### `npm run build`
+@cypress/puppeteer plugin has all the tooling required to integrate the Puppeteer with Cypress.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+With this plugin we can now use a new command `cy.puppeteer()` which will execute the puppeteer code in the browser, the puppeteer code we will be using has to be used in the cypress.config.js file
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+If you want to use the plugin in existing repo, please install the below @cypress/puppeteer as dev dependency
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+npm install --save-dev @cypress/puppeteer
+```
 
-### `npm run eject`
+For typescript repository, please add the below types in `tsconfig.json` file
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+{
+  "compilerOptions": {
+    "types": ["cypress", "@cypress/puppeteer/support"]
+  }
+}
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Add below import in the support/e2e.js{ts} file
+```
+import '@cypress/puppeteer/support'
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Now we can add our puppeteer code in the cypress.config.js{ts} file.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The application i will be using in the repo for example will have a landing page, which contains a link and clicking it opens a user registration form in new tab.
 
-## Learn More
+Below will be our test validation
+1.Access the Landing Page
+2.Click on the User Registration Link
+![Alt text](image.png)
+3.Switch to new tab and enter the user details
+![Alt text](image-1.png)
+4.Submit the user form and Validate the success message
+![Alt text](image-2.png)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Code Explanation
 
-### Code Splitting
+Our cypress test will look like below
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
 
-### Analyzing the Bundle Size
+it("Multitab example using cypress-puppeteer", () => {
+  cy.visit("/");
+  cy.get("#registrationLink").should("have.text", "Register Here").click();
+  cy.puppeteer("switchToNewTabAndRegisterUser").should(
+    "equal",
+    "User Registration Completed"
+  );
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Code break down is as follows:
 
-### Making a Progressive Web App
+Cypress command to visit the url
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
+ cy.visit("/")
+ ```
 
-### Advanced Configuration
+Cypress command to get the register link, validate the link's text and then click on the link
+ ```
+ cy.get("#registrationLink").should("have.text", "Register Here").click();
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Below command is coming from Cypress Puppeteer plugin
+```
+cy.puppeteer("switchToNewTabAndRegisterUser").should(
+    "equal",
+    "User Registration Completed"
+  );
+```
+This is similar to `cy.task()` where we pass the task name and with cy.puppeteer() we pass the message handler name which we are going to write it in `cypress.config.js` file and the message handler will return the success message once the user registration is completed.
 
-### Deployment
+Now let's write the message handler in `cypress.config.js` file and which will look like below
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```
+import { defineConfig } from "cypress";
+import { Browser as PuppeteerBrowser, Page } from "puppeteer-core";
+import { setup, retry } from "@cypress/puppeteer";
 
-### `npm run build` fails to minify
+module.exports = defineConfig({
+  e2e: {
+    baseUrl: "http://localhost:3000/",
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+      setup({
+        on,
+        onMessage: {
+          async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
+            const page = await retry<Promise<Page>>(async () => {
+              const pages = await browser.pages();
+              const page = await pages.find(page =>
+                page.url().includes("register")
+              );
+              if (!page) {
+                throw new Error("Could not find page");
+              }
+
+              return page;
+            });
+
+            await page.bringToFront();
+            await page.waitForSelector("#firstname");
+            await page.type("#firstname", "test");
+            await page.type("#lastname", "test");
+            await page.type("#email", "test@test.com");
+            const submitButton = await page.$("#submit");
+            await submitButton.click();
+            const successMsg = await page.$eval(
+              "#successMsg",
+              el => el.textContent
+            );
+            submitButton.dispose();
+            await page.close();
+            return successMsg;
+          }
+        }
+      });
+    }
+  }
+});
+```
+
+Code Walk through
+
+We are importing below classes and functions 
+
+```
+import { defineConfig } from "cypress";
+import { Browser as PuppeteerBrowser, Page } from "puppeteer-core";
+import { setup, retry } from "@cypress/puppeteer";
+```
+Note that PuppeteerBrowser and Page are classes from `puppeteer-core` and setup, retry functions are from `@cypress/puppeteer`
+
+we are going to use them in writing our Message Handler like below in the e2e config and within setupNodeEvents
+
+```
+e2e: {
+    baseUrl: "http://localhost:3000/",
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+
+      setup({
+        on,
+        onMessage: {
+          async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
+            const page = await retry<Promise<Page>>(async () => {
+              const pages = await browser.pages();
+              const page = await pages.find(page =>
+                page.url().includes("register")
+              );
+              if (!page) {
+                throw new Error("Could not find page");
+              }
+
+              return page;
+            });
+
+            await page.bringToFront();
+            await page.waitForSelector("#firstname");
+            await page.type("#firstname", "test");
+            await page.type("#lastname", "test");
+            await page.type("#email", "test@test.com");
+            const submitButton = await page.$("#submit");
+            await submitButton.click();
+            const successMsg = await page.$eval(
+              "#successMsg",
+              el => el.textContent
+            );
+            submitButton.dispose();
+            await page.close();
+            return successMsg;
+          }
+        }
+      });
+    }
+  }
+  ```
+
+Now we focus on the `setup` function 
+
+```
+setup({
+        on,
+        onMessage: {
+          async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
+            const page = await retry<Promise<Page>>(async () => {
+              const pages = await browser.pages();
+              const page = await pages.find(page =>
+                page.url().includes("register")
+              );
+              if (!page) {
+                throw new Error("Could not find page");
+              }
+
+              return page;
+            });
+
+            await page.bringToFront();
+            await page.waitForSelector("#firstname");
+            await page.type("#firstname", "test");
+            await page.type("#lastname", "test");
+            await page.type("#email", "test@test.com");
+            const submitButton = await page.$("#submit");
+            await submitButton.click();
+            const successMsg = await page.$eval(
+              "#successMsg",
+              el => el.textContent
+            );
+            submitButton.dispose();
+            await page.close();
+            return successMsg;
+          }
+        }
+      });
+    }
+```
+We create on new Message Handler within `onMessage`, which says as soon as the Message is called, execute the code which is contained within Message Handler - In our case the Message Handler is `switchToNewTabAndRegisterUser`
+
+```
+async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
+              const page = await retry<Promise<Page>>(async () => {
+              const pages = await browser.pages();
+              const page = await pages.find(page =>
+                page.url().includes("register")
+              );
+              if (!page) {
+                throw new Error("Could not find page");
+              }
+
+              return page;
+            });
+
+            await page.bringToFront();
+            await page.waitForSelector("#firstname");
+            await page.type("#firstname", "test");
+            await page.type("#lastname", "test");
+            await page.type("#email", "test@test.com");
+            const submitButton = await page.$("#submit");
+            await submitButton.click();
+            const successMsg = await page.$eval(
+              "#successMsg",
+              el => el.textContent
+            );
+            submitButton.dispose();
+            await page.close();
+            return successMsg;
+          }
+        }
+```
+Observe that `switchToNewTabAndRegisterUser` takes the parameter `browser` and this parameter input will be injested by our Cypress when this message handler is called in the code.
+
+Now the coming to Puppeeteer code, below will be the way our code is created
+1. Create page reference
+```
+const page = await retry<Promise<Page>>(async () => {
+              const pages = await browser.pages();
+              const page = await pages.find(page =>
+                page.url().includes("register")
+              );
+              if (!page) {
+                throw new Error("Could not find page");
+              }
+
+              return page;
+            });
+```
+Observe that we are using retry function(There could be delay in the new page load and hence this retry function) and within that we are getting all the pages from the current browser and then finding the required page which is open and returning it back. We also throw error if we dont find the expected page
+
+2.Once we get the required page reference, we fill the form and return the success message
+```
+ await page.bringToFront();
+            await page.waitForSelector("#firstname");
+            await page.type("#firstname", "test");
+            await page.type("#lastname", "test");
+            await page.type("#email", "test@test.com");
+            const submitButton = await page.$("#submit");
+            await submitButton.click();
+            const successMsg = await page.$eval(
+              "#successMsg",
+              el => el.textContent
+            );
+            submitButton.dispose();
+            await page.close();
+            return successMsg;
+```
+
+The message will then be asserted from chai's assertion command
+
+## Conclusion
+Blending Cypress with Puppeteer for multi-tab testing not only elevates your testing game but also ensures your applications can withstand the complex interactions modern users expect. This guide serves as a starting point for developers and testers eager to explore the depth of testing possible with these tools. Embrace experimentation within your testing practices to discover the full potential of your web applications.
