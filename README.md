@@ -275,7 +275,7 @@ async switchToNewTabAndRegisterUser(browser: PuppeteerBrowser) {
           }
         }
 ```
-Observe that `switchToNewTabAndRegisterUser` takes the parameter `browser` and this parameter input will be injested by our Cypress when this message handler is called in the code.
+Observe that `switchToNewTabAndRegisterUser` takes the parameter `browser` and this parameter input will be injected by our Cypress when this message handler is called in the code.
 
 Now the coming to Puppeeteer code, below will be the way our code is created
 1. Create page reference
