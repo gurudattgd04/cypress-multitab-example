@@ -52,9 +52,9 @@ The application i will be using in the repo for example will have a landing page
 Below will be our test validation
 1.Access the Landing Page </br>
 2.Click on the User Registration Link </br>
-![Alt text](image.png)
+![Alt text](image.png) </br>
 3.Switch to new tab and enter the user details </br>
-![Alt text](image-1.png)
+![Alt text](image-1.png) </br>
 4.Submit the user form and Validate the success message </br>
 ![Alt text](image-2.png)
 
