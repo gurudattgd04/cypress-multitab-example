@@ -75,7 +75,7 @@ it("Multitab example using cypress-puppeteer", () => {
 });
 ```
 
-Code break down is as follows:
+**Code break down is as follows:**
 
 Cypress command to visit the url
 
@@ -294,7 +294,7 @@ const page = await retry<Promise<Page>>(async () => {
 ```
 Observe that we are using retry function(There could be delay in the new page load and hence this retry function) and within that we are getting all the pages from the current browser and then finding the required page which is open and returning it back. We also throw error if we dont find the expected page
 
-2.Once we get the required page reference, we fill the form and return the success message
+2. Once we get the required page reference, we fill the form and return the success message
 ```
  await page.bringToFront();
             await page.waitForSelector("#firstname");
