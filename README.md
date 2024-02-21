@@ -47,9 +47,10 @@ import '@cypress/puppeteer/support'
 
 Now we can add our puppeteer code in the cypress.config.js{ts} file.
 
-The application i will be using in the repo for example will have a landing page, which contains a link and clicking it opens a user registration form in new tab.
+The application we will be using in the repo as an example will have a landing page, which contains a link and clicking it opens a user registration form in new tab.
 
-Below will be our test validation
+**Below will be our test validation**
+
 1.Access the Landing Page </br>
 2.Click on the User Registration Link </br>
 ![Alt text](image.png) </br>
