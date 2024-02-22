@@ -18,6 +18,17 @@ To begin with
 ```
 npm install
 ```
+3. Start the react app
+
+```
+npm start
+```
+
+4. Run cypress tests in open mode
+```
+npx cypress open
+```
+
 ### How Cypress is supporting Multitab ?
 
 @cypress/puppeteer plugin has all the tooling required to integrate the Puppeteer with Cypress.
